@@ -3,22 +3,28 @@ nav {
   background-color: #007bff;
   padding: 1rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 100%;
 }
 
+/* Container for flex layout */
 .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
+/* Navbar Title */
 nav h1 {
   color: white;
   font-size: 1.5rem;
   font-weight: bold;
 }
 
+/* Navigation List */
 nav ul {
   list-style: none;
   display: flex;
@@ -35,9 +41,53 @@ nav ul li a {
   color: white;
   text-decoration: none;
   font-size: 1rem;
-  transition: color 0.3s ease-in-out;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  border-radius: 5px;
 }
 
 nav ul li a:hover {
   color: #ffcc00;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  nav ul {
+    flex-direction: column;
+    width: 100%;
+    padding-top: 0.5rem;
+  }
+
+  nav ul li {
+    width: 100%;
+    padding: 0.5rem 0;
+  }
+
+  nav ul li a {
+    display: block;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  nav h1 {
+    font-size: 1.4rem;
+  }
+
+  nav ul {
+    gap: 0.5rem;
+  }
+
+  nav ul li a {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
 }
