@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "./components/ui/Button";
 import { ethers } from "ethers";
 import matches from "./data/matches";
 import MatchPrediction from "./components/MatchPrediction.jsx";
@@ -21,6 +20,18 @@ export default function Round1Tips() {
     localStorage.setItem("round1Predictions", JSON.stringify(predictions));
   }, [predictions]);
 
+  useEffect(() => {
+    const savedPrivateKey = localStorage.getItem("localWallet");
+    if (savedPrivateKey) {
+      try {
+        const restoredWallet = new ethers.Wallet(savedPrivateKey);
+        setWallet(restoredWallet);
+      } catch (error) {
+        console.error("Failed to restore wallet from local storage:", error);
+      }
+    }
+  }, []);
+
   const handlePredictionChange = (index, selectedTeam) => {
     setPredictions((prevPredictions) => {
       const newPredictions = [...prevPredictions];
@@ -35,33 +46,34 @@ export default function Round1Tips() {
       setError("You must create a local wallet before minting.");
       return;
     }
-    const provider = new ethers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545/");
-    const signer = new ethers.Wallet(wallet.privateKey, provider);
-    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    setMinting(true);
+    try {
+      const provider = new ethers.JsonRpcProvider("https://data-seed-prebsc-1-s1.binance.org:8545/");
+      const signer = new ethers.Wallet(wallet.privateKey, provider);
+      const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-    const metadataURI = `data:application/json;base64,${btoa(JSON.stringify({ predictions }))}`;
-    const tx = await contract.mintNFT(metadataURI, { value: ethers.parseEther("0.01") });
-    await tx.wait();
+      const metadataURI = `data:application/json;base64,${btoa(JSON.stringify({ predictions }))}`;
+      const tx = await contract.mintNFT(metadataURI, { value: ethers.parseEther("0.01") });
+      await tx.wait();
 
-    alert("✅ NFT Minted Successfully on Binance Testnet!");
+      alert("✅ NFT Minted Successfully on Binance Testnet!");
+    } catch (error) {
+      console.error("Minting failed:", error);
+      setError("Minting failed! See console for details.");
+    }
+    setMinting(false);
   };
 
   return (
     <div className="p-6 max-w-lg mx-auto">
       <h2 className="text-2xl font-bold text-center mb-4">🔥 Round 1 Tips - Main Event 🔥</h2>
-
       <MatchPrediction matches={matches} predictions={predictions} handlePredictionChange={handlePredictionChange} />
-
       <SelectedPredictions predictions={predictions} matches={matches} />
-
       <Wallet setWallet={setWallet} />
-
-      <button onClick={mintNFT} disabled={!wallet} className="w-full mt-4 mint-button">
-  {minting ? "Minting..." : "Let's Mint Your Selection!"}
-</button>
-
-
-      
+      <button onClick={mintNFT} disabled={!wallet || minting} className="w-full mt-4 mint-button">
+        {minting ? "Minting..." : "Let's Mint Your Selection!"}
+      </button>
+      {error && <p className="text-red-500 text-center mt-2">{error}</p>}
     </div>
   );
 }
