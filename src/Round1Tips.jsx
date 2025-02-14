@@ -56,9 +56,12 @@ export default function Round1Tips() {
 
       <Wallet setWallet={setWallet} />
 
-      <Button onClick={mintNFT} disabled={!wallet} className="w-full mt-4 bg-green-600 text-white">
-        {minting ? "Minting..." : "Mint NFT on BNB Testnet"}
-      </Button>
+      <button onClick={mintNFT} disabled={!wallet} className="w-full mt-4 mint-button">
+  {minting ? "Minting..." : "Let's Mint Your Selection!"}
+</button>
+
+
+      
     </div>
   );
 }
