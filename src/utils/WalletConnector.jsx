@@ -12,7 +12,7 @@ const MMSDK = new MetaMaskSDK({
   checkInstallationImmediately: false,
 });
 
-const ethereum = MMSDK.getProvider();
+const ethereum = MMSDK.getProvider() || window.ethereum; // Fallback to window.ethereum
 
 // 🔗 Ensure the user is on BSC Testnet
 const checkNetwork = async () => {
@@ -46,8 +46,6 @@ const checkNetwork = async () => {
 export const connectWallet = async () => {
   if (!ethereum) {
     alert("MetaMask not detected. Please install MetaMask and try again.");
-    
-    // 🌍 If MetaMask is not installed, redirect to download page
     window.open("https://metamask.io/download/", "_blank");
     return null;
   }
@@ -55,12 +53,16 @@ export const connectWallet = async () => {
   try {
     const provider = new ethers.BrowserProvider(ethereum);
 
-    // 🔗 Use Deeplinking for Mobile
-    if (window.innerWidth < 768) {
-      window.open("https://metamask.app.link/dapp/your-dapp.vercel.app", "_blank");
+    // 🔍 Check if using MetaMask's in-app browser (No deeplink needed)
+    const isMetaMaskMobile = /MetaMask/i.test(navigator.userAgent);
+    
+    if (window.innerWidth < 768 && !isMetaMaskMobile) {
+      // 📲 Mobile: Use Deep Linking
+      window.open(`https://metamask.app.link/dapp/${window.location.hostname}`, "_blank");
       return null;
     }
 
+    // 🔗 Request wallet connection
     await provider.send("eth_requestAccounts", []);
 
     const isCorrectNetwork = await checkNetwork();
