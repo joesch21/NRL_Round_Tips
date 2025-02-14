@@ -1,29 +1,53 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import CryptoJS from "crypto-js";
 
 const Wallet = ({ setWallet }) => {
   const [wallet, setLocalWallet] = useState(null);
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [manualPrivateKey, setManualPrivateKey] = useState("");
   const [loading, setLoading] = useState(true);
+  const [encryptionPassword, setEncryptionPassword] = useState("");
+
+  const encryptPrivateKey = (privateKey, password) => {
+    return CryptoJS.AES.encrypt(privateKey, password).toString();
+  };
+
+  const decryptPrivateKey = (encryptedKey, password) => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedKey, password);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch (error) {
+      console.error("Decryption failed", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
-    const savedPrivateKey = localStorage.getItem("localWallet");
-    if (savedPrivateKey) {
+    const savedEncryptedKey = localStorage.getItem("localWallet");
+    if (savedEncryptedKey && encryptionPassword) {
       try {
-        const restoredWallet = new ethers.Wallet(savedPrivateKey);
-        setLocalWallet(restoredWallet);
-        setWallet(restoredWallet);
+        const decryptedKey = decryptPrivateKey(savedEncryptedKey, encryptionPassword);
+        if (decryptedKey) {
+          const restoredWallet = new ethers.Wallet(decryptedKey);
+          setLocalWallet(restoredWallet);
+          setWallet(restoredWallet);
+        }
       } catch (error) {
         console.error("Failed to restore wallet from local storage:", error);
       }
     }
     setLoading(false);
-  }, [setWallet]);
+  }, [setWallet, encryptionPassword]);
 
   const createLocalWallet = () => {
+    if (!encryptionPassword) {
+      alert("Please enter a password to encrypt your wallet.");
+      return;
+    }
     const newWallet = ethers.Wallet.createRandom();
-    localStorage.setItem("localWallet", newWallet.privateKey);
+    const encryptedKey = encryptPrivateKey(newWallet.privateKey, encryptionPassword);
+    localStorage.setItem("localWallet", encryptedKey);
     setLocalWallet(newWallet);
     setWallet(newWallet);
     alert(`New wallet created! Address: ${newWallet.address}`);
@@ -36,7 +60,8 @@ const Wallet = ({ setWallet }) => {
       }
       try {
         const restoredWallet = new ethers.Wallet(manualPrivateKey.trim());
-        localStorage.setItem("localWallet", manualPrivateKey.trim());
+        const encryptedKey = encryptPrivateKey(manualPrivateKey.trim(), encryptionPassword);
+        localStorage.setItem("localWallet", encryptedKey);
         setLocalWallet(restoredWallet);
         setWallet(restoredWallet);
         alert("Wallet successfully loaded from private key!");
@@ -54,6 +79,13 @@ const Wallet = ({ setWallet }) => {
   return (
     <div className="mt-4 p-3 border rounded bg-gray-100 text-center">
       <h3 className="text-lg font-semibold">Your Local Wallet</h3>
+      <input
+        type="password"
+        placeholder="Enter Encryption Password"
+        className="w-full p-2 border rounded mt-2"
+        value={encryptionPassword}
+        onChange={(e) => setEncryptionPassword(e.target.value)}
+      />
       {loading ? (
         <p>Loading wallet...</p>
       ) : wallet ? (

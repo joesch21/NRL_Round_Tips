@@ -1,0 +1,54 @@
+/* Instructions Page Styling */
+.instructions-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.instructions-header {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.instructions-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-left: 5px solid #007bff;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.instructions-section h3 {
+  font-size: 1.5rem;
+  color: #007bff;
+  margin-bottom: 0.75rem;
+}
+
+.instructions-section p, .instructions-section ul {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.instructions-section ul {
+  padding-left: 1.5rem;
+}
+
+.instructions-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+.instructions-footer {
+  text-align: center;
+  font-size: 1rem;
+  color: #666;
+  margin-top: 2rem;
+}
