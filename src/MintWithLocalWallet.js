@@ -27,7 +27,7 @@ export const mintWithLocalWallet = async (predictions) => {
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 
     const metadataURI = JSON.stringify({
-      name: "Round 1 Tips NFT",
+      name: "Round 1 Games",
       description: "User's predictions for Round 1 of NRL.",
       predictions,
     });

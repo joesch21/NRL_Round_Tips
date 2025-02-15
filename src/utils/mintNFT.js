@@ -76,7 +76,7 @@ const mintNFT = async (predictions, account) => {
 
     // Convert predictions to JSON metadata (DIRECT to blockchain)
     const metadata = JSON.stringify({
-      name: "Round 1 Tips NFT",
+      name: "Round 1",
       description: "Selections for Round 1",
       predictions
     });

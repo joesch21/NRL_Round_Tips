@@ -66,7 +66,7 @@ export default function Round1Tips() {
 
   return (
     <div className="p-6 max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-4">🔥 Round 1 Tips - Main Event 🔥</h2>
+      <h2 className="text-2xl font-bold text-center mb-4">🔥 Round 1 Games 🔥</h2>
       <MatchPrediction matches={matches} predictions={predictions} handlePredictionChange={handlePredictionChange} />
       <SelectedPredictions predictions={predictions} matches={matches} />
       <Wallet setWallet={setWallet} />
