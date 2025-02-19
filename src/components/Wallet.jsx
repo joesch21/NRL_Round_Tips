@@ -4,7 +4,8 @@ import CryptoJS from "crypto-js";
 import { getRelayerContractInstance } from "../utils/relayer";
 
 const RPC_URL = "https://bsc-testnet.publicnode.com";
-const RELAYER_PRIVATE_KEY = import.meta.env.VITE_RELAYER_PRIVATE_KEY;
+const RELAYER_PRIVATE_KEY = process.env.VITE_RELAYER_PRIVATE_KEY || import.meta.env.VITE_RELAYER_PRIVATE_KEY;
+
 
 const Wallet = ({ setWallet }) => {
   const [wallet, setLocalWallet] = useState(null);
