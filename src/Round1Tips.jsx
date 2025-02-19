@@ -75,5 +75,6 @@ export default function Round1Tips() {
       </button>
       {error && <p className="text-red-500 text-center mt-2">{error}</p>}
     </div>
+    
   );
 }

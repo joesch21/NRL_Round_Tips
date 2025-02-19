@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import CryptoJS from "crypto-js";
+import { getRelayerContractInstance } from "../utils/relayer";
+
+const RPC_URL = "https://bsc-testnet.publicnode.com";
+const RELAYER_PRIVATE_KEY = import.meta.env.VITE_RELAYER_PRIVATE_KEY;
 
 const Wallet = ({ setWallet }) => {
   const [wallet, setLocalWallet] = useState(null);
@@ -8,6 +12,8 @@ const Wallet = ({ setWallet }) => {
   const [manualPrivateKey, setManualPrivateKey] = useState("");
   const [loading, setLoading] = useState(true);
   const [encryptionPassword, setEncryptionPassword] = useState("");
+  const [funding, setFunding] = useState(false);
+  const [fundingError, setFundingError] = useState("");
 
   const encryptPrivateKey = (privateKey, password) => {
     return CryptoJS.AES.encrypt(privateKey, password).toString();
@@ -76,6 +82,35 @@ const Wallet = ({ setWallet }) => {
     alert("Copied to clipboard!");
   };
 
+  const fundWallet = async () => {
+    if (!wallet) {
+      setFundingError("No wallet to fund.");
+      return;
+    }
+
+    setFunding(true);
+    try {
+      const provider = new ethers.JsonRpcProvider(RPC_URL);
+      const relayerSigner = new ethers.Wallet(RELAYER_PRIVATE_KEY, provider);
+      const contract = await getRelayerContractInstance(relayerSigner);
+
+      const hasReceivedFunds = await contract.hasReceivedFunds(wallet.address);
+      if (hasReceivedFunds) {
+        alert("❌ Wallet has already been funded.");
+        setFunding(false);
+        return;
+      }
+
+      const txResponse = await contract.fundWallet(wallet.address);
+      await txResponse.wait();
+      alert("✅ Wallet successfully funded with 0.11 TBNB!");
+    } catch (error) {
+      console.error(error);
+      setFundingError("Funding failed! Check console.");
+    }
+    setFunding(false);
+  };
+
   return (
     <div className="mt-4 p-3 border rounded bg-gray-100 text-center">
       <h3 className="text-lg font-semibold">Your Local Wallet</h3>
@@ -94,6 +129,17 @@ const Wallet = ({ setWallet }) => {
           <button onClick={() => copyToClipboard(wallet.address)} className="w-full mt-2 connect-wallet">
             Copy Public Key
           </button>
+
+          {/* ✅ Funding Button Here ✅ */}
+          {wallet && (
+  <button onClick={fundWallet} disabled={funding} className="w-full mt-4 funding-button">
+    {funding ? "Funding..." : "Fund Wallet (0.11 TBNB)"}
+  </button>
+)}
+
+
+          {fundingError && <p className="text-red-500 mt-2">{fundingError}</p>}
+
           <div className="mt-4">
             <button onClick={() => setShowPrivateKey(!showPrivateKey)} className="w-full bg-red-500 text-white connect-wallet">
               {showPrivateKey ? "Hide Private Key" : "Show Private Key"}
